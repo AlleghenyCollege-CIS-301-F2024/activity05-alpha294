@@ -1,6 +1,6 @@
 # Manova demo using Skulls dataset.
 
-# Add Your Name Here
+# Alpha Bah
 
 rm(list = ls()) # clear out the variables from memory to make a clean execution of the code.
 
@@ -9,11 +9,7 @@ graphics.off() # clear out all plots from previous work.
 
 cat("\014") # clear the console
 
-#library(tidyverse)
-# A better way to code...
-# Find out if the library is not already installed and\
-# if not, install the library and then load it.
-
+# Load necessary libraries
 if(!require('tidyverse')) {
   install.packages('tidyverse')
   library('tidyverse')
@@ -25,8 +21,6 @@ if(!require('HSAUR2')) {
 }
 
 # The skulls data concerns measurements made on Egyptian skulls from five epochs.
-# ?skulls
-
 data("skulls") # use this data set for proceeding code
 names(skulls) # get the variables
 summary(skulls) # summary of the data
@@ -35,16 +29,10 @@ summary(skulls) # summary of the data
 # Plotting to visualize the means.
 ##################################
 
-# Steps take in the below code
-# + Load the skulls dataset.
-# + Calculate the means of each column grouped by epoch.
-# + Create a plot to visualize the means.
-
 # Calculate the means of each column by epoch
 means_by_epoch <- skulls %>%
   group_by(epoch) %>%
   summarise(across(where(is.numeric), mean, na.rm = TRUE))
-# across(): we apply the function to multiple cols
 
 # Reshape the data for plotting
 means_long <- means_by_epoch %>%
@@ -60,7 +48,28 @@ ggplot(means_long, aes(x = epoch, y = mean_value, fill = measurement)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ##################################
-# Add manova code below
+# MANOVA
 ##################################
 
-# TODO
+# Prepare the data for MANOVA
+# Response variables (skull measurements)
+response_vars <- skulls[, 1:4]  # Select the first 4 columns (these are the measurements)
+
+# Grouping variable (epochs)
+grouping_var <- skulls$epoch
+
+# Perform MANOVA
+manova_fit <- manova(as.matrix(response_vars) ~ grouping_var)
+
+# Display MANOVA summary
+summary(manova_fit)
+
+# Wilks' Lambda test for MANOVA (to test for significant differences between groups)
+summary(manova_fit, test = "Wilks")
+
+##################################
+# Interpretation
+##################################
+# The MANOVA results tell us whether the skull measurements (response variables)
+# significantly differ across the epochs (grouping variable).
+# The Wilks' Lambda test provides the p-value to assess significance.
